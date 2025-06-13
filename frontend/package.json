@@ -6,7 +6,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.0",
-    "react-scripts": "^0.0.0",
+    "react-scripts": "^5.0.0",
     "react-window": "^1.8.8"
   },
   "scripts": {
@@ -30,7 +30,7 @@
     "autoprefixer": "^10.4.21",
     "cross-env": "^7.0.3",
     "postcss": "^8.5.5",
-    "tailwindcss": "^4.1.10"
+    "tailwindcss": "^3.4.0"
   },
   "proxy": "http://localhost:3001"
 }

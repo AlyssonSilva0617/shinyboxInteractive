@@ -1,5 +1,5 @@
 const express = require("express");
-const fs = require("fs");
+const fs = require('fs').promises;
 const path = require("path");
 const router = express.Router();
 const DATA_PATH = path.join(__dirname, "../../../data/items.json");
@@ -19,9 +19,10 @@ async function readData() {
       const raw = await fs.readFile(DATA_PATH, "utf8");
       dataCache = JSON.parse(raw);
       lastModified = stats.mtime;
-      return dataCache;
     }
-  } catch {
+    return dataCache;
+
+  } catch (error) {
     console.error("Error reading data:", error);
     throw error;
   }
@@ -36,7 +37,7 @@ async function writeData(data) {
     dataCache = data;
     lastModified = new Date();
   } catch (error) {
-    console.error("Error writing data:", error);
+    // console.error("Error writing data:", error);
     throw error;
   }
 }

@@ -1,5 +1,5 @@
 const express = require("express");
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
 const router = express.Router();
 const DATA_PATH = path.join(__dirname, "../../data/items.json");
@@ -87,5 +87,10 @@ function getCategoryStats(items) {
   });
 
   return categoryStats;
+}
+
+function mean(arr) {
+  if (!arr.length) return 0;
+  return arr.reduce((sum, val) => sum + val, 0) / arr.length;
 }
 module.exports = router;
