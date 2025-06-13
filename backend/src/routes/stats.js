@@ -1,8 +1,9 @@
 const express = require("express");
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
+const { mean } = require("../utils/stats");
 const router = express.Router();
-const DATA_PATH = path.join(__dirname, "../../data/items.json");
+const DATA_PATH = path.join(__dirname, "../../../data/items.json");
 
 // Cache for stats
 let statsCache = null;
@@ -88,4 +89,5 @@ function getCategoryStats(items) {
 
   return categoryStats;
 }
+
 module.exports = router;

@@ -1,5 +1,5 @@
 const express = require("express");
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
 const router = express.Router();
 const DATA_PATH = path.join(__dirname, "../../../data/items.json");
@@ -14,14 +14,14 @@ async function readData() {
     const stats = await fs.stat(DATA_PATH);
 
     // Check if we need to refresh cache
-
     if (!dataCache || !lastModified || stats.mtime > lastModified) {
       const raw = await fs.readFile(DATA_PATH, "utf8");
       dataCache = JSON.parse(raw);
       lastModified = stats.mtime;
-      return dataCache;
     }
-  } catch {
+    
+    return dataCache;
+  } catch (error) {
     console.error("Error reading data:", error);
     throw error;
   }
